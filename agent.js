@@ -28,15 +28,15 @@ class Agent {
 		// Получение сообщения
 		let data = msg.toString('utf8'); // ПРиведение
 		this.processMsg(data); // Разбор сообщения
-		this.sended(); // Отправка команды
+		this.sendCmd(); // Отправка команды
 	}
 	setSocket(socket) {
 		// Настройка сокета
 		this.socket = socket;
 	}
-	socketSend(cmd, value) {
+	async socketSend(cmd, value) {
 		// Отправка команды
-		this.socket.sendMsg(`(${cmd} ${value})`);
+		await this.socket.sendMsg(`(${cmd} ${value})`);
 	}
 	processMsg(msg) {
 		// Обработка сообщения
@@ -54,7 +54,7 @@ class Agent {
 	analyzeEnv(msg, cmd, p) {
 		// Анализ сообщения
 	}
-	sended() {
+	sendCmd() {
 		if (this.run) {
 			// Идра начата
 			if (this.act) {
