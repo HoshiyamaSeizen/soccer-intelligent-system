@@ -28,7 +28,7 @@ class Agent {
 		// Получение сообщения
 		let data = msg.toString('utf8'); // ПРиведение
 		this.processMsg(data); // Разбор сообщения
-		this.sendCmd(); // Отправка команды
+		this.sended(); // Отправка команды
 	}
 	setSocket(socket) {
 		// Настройка сокета
@@ -49,7 +49,7 @@ class Agent {
 	}
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
-		if (p[1]) this.id = p[l]; // id игрока
+		if (p[1]) this.id = p[1]; // id игрока
 	}
 	analyzeEnv(msg, cmd, p) {
 		// Анализ сообщения
