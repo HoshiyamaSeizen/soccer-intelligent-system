@@ -1,5 +1,6 @@
 const Msg = require('./msg');
 const readline = require('readline');
+const Flags = require("./flags");
 
 class Agent {
 	constructor() {
@@ -52,7 +53,37 @@ class Agent {
 		if (p[1]) this.id = p[1]; // id игрока
 	}
 	analyzeEnv(msg, cmd, p) {
-		// Анализ сообщения
+		if (cmd == "see"){
+			let observedFlags = []
+			for (let i = 1; i < p.length; i++){
+				let flagName = p[i].cmd.p.join("");
+				if (Object.keys(Flags).includes(flagName) && p[i].p.length >= 2) { //является флагом и больше двух чисел => есть расстояние
+					observedFlags.push(p[i]);
+				} 
+			}
+			if (observedFlags.length < 3) {console.log("Вижу меньше 3 флагов"); return;}
+			observedFlags.sort(function(a, b) { // возьмем ближайшие флаги
+				return a.p[0]-b.p[0];
+			});
+			let extractFlagCoordsAndDistance = (observedFlag) => {
+				let flagName = observedFlag.cmd.p.join("");
+				return [Flags[flagName].x, Flags[flagName].y, observedFlag.p[0]] // X, Y, расстояние до флага
+			}
+			let [x1, y1, d1] = extractFlagCoordsAndDistance(observedFlags[0]);
+			let [x2, y2, d2] = extractFlagCoordsAndDistance(observedFlags[1]);
+			let [x3, y3, d3] = extractFlagCoordsAndDistance(observedFlags[2]);
+			let alpha1 = (y1 - y2) / (x2 - x1);
+			let beta1 = (y2*y2 - y1*y1 + x2*x2 - x1*x1 + d1*d1 - d2*d2) / (2 *(x2 - x1));
+			let alpha2 = (y1 - y3) / (x3 - x1);
+			let beta2 = (y3*y3 - y1*y1 + x3*x3 - x1*x1 + d1*d1 - d3*d3) / (2 *(x3 - x1));
+			let delta_beta = beta1 - beta2;
+			let delta_alpha = alpha2 - alpha1;
+			let X = alpha1*(delta_beta/delta_alpha)+beta1;
+			let Y = delta_beta/delta_alpha;
+			console.log(alpha1, alpha2, beta1, beta2, delta_alpha, delta_beta);
+			console.log("X = ", X, "Y = ", Y);
+			console.log("\n");
+		}
 	}
 	sendCmd() {
 		if (this.run) {
