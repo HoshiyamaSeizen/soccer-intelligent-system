@@ -35,6 +35,6 @@ let teamNameB = 'teamB';
 	await Socket(pA1, pA1.team, VERSION);
 	await Socket(pB1, pB1.team, VERSION);
 
-	await pA1.socketSend('move', `${c1[0]} ${-c1[1]}`);
-	await pB1.socketSend('move', `${-c2[0]} ${c2[1]}`);
+	await pA1.socketSend('move', `${c1[0]} ${c1[1]}`);
+	await pB1.socketSend('move', `${-c2[0]} ${-c2[1]}`);
 })();
