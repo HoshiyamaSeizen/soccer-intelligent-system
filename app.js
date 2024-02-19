@@ -1,10 +1,17 @@
 const Agent = require('./agent');
+const Socket = require('./socket');
 const VERSION = 7;
 
-let teamName = 'teamA';
-let agent = new Agent();
+let teamNameA = 'teamA';
+let teamNameB = 'teamB';
+
+let pA1 = new Agent();
+let pB1 = new Agent();
 
 (async () => {
-	await require('./socket')(agent, teamName, VERSION);
-	await agent.socketSend('move', `-15 0`);
+	await Socket(pA1, teamNameA, VERSION);
+	// await Socket(pB1, teamNameB, VERSION);
+
+	await pA1.socketSend('move', `-15 0`);
+	// await pB1.socketSend('move', `-5 10`);
 })();
