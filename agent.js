@@ -5,7 +5,7 @@ const Flags = require('./flags');
 const round = (a) => Math.round(a * 100) / 100;
 
 class Agent {
-	constructor(team) {
+	constructor(team, strat = null) {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // ИГра начата
 		this.act = null; // Действия
@@ -15,6 +15,7 @@ class Agent {
 			output: process.stdout,
 		});
 		this.team = team;
+		this.strat = strat;
 		this.posMethod = '3P';
 		this.rl.on('line', (input) => {
 			// Обработка строки из кон—
@@ -77,48 +78,60 @@ class Agent {
 				}
 			}
 
-			if (observedFlags.length < 3 && this.posMethod === '3P')
-				return console.log('Вижу меньше 3 значимых флагов');
-			else if (observedFlags.length < 2 && this.posMethod === '2P')
-				return console.log('Вижу меньше 2 значимыхых флагов');
+			let analyze = true;
+			if (observedFlags.length < 3 && this.posMethod === '3P') {
+				analyze = false;
+				console.log('Вижу меньше 3 значимых флагов');
+			} else if (observedFlags.length < 2 && this.posMethod === '2P') {
+				analyze = false;
+				console.log('Вижу меньше 2 значимыхых флагов');
+			}
 
-			observedFlags.sort((a, b) => a.p[0] - b.p[0]);
-			let extractFlagCoordsAndDistance = (observedFlag) => {
-				let flagName = observedFlag.cmd.p.join('');
-				return [Flags[flagName].x, Flags[flagName].y, observedFlag.p[0], observedFlag.p[1]]; // X, Y, расстояние до флага, угол
-			};
+			if (analyze) {
+				observedFlags.sort((a, b) => a.p[0] - b.p[0]);
+				let extractFlagCoordsAndDistance = (observedFlag) => {
+					let flagName = observedFlag.cmd.p.join('');
+					return [Flags[flagName].x, Flags[flagName].y, observedFlag.p[0], observedFlag.p[1]]; // X, Y, расстояние до флага, угол
+				};
 
-			let [x1, y1, d1, alpha1] = extractFlagCoordsAndDistance(observedFlags[0]);
-			let [x2, y2, d2, alpha2] = extractFlagCoordsAndDistance(observedFlags[1]);
-			let [x3, y3, d3, alpha3] =
-				this.posMethod === '3P' ? extractFlagCoordsAndDistance(observedFlags[2]) : [0, 0, 0, 0];
+				let [x1, y1, d1, alpha1] = extractFlagCoordsAndDistance(observedFlags[0]);
+				let [x2, y2, d2, alpha2] = extractFlagCoordsAndDistance(observedFlags[1]);
+				let [x3, y3, d3, alpha3] =
+					this.posMethod === '3P'
+						? extractFlagCoordsAndDistance(observedFlags[2])
+						: [0, 0, 0, 0];
 
-			let [X, Y] =
-				this.posMethod === '3P'
-					? this.calculatePos3P(x1, y1, d1, x2, y2, d2, x3, y3, d3)
-					: this.calculatePos2P(x1, y1, d1, x2, y2, d2);
+				let [X, Y] =
+					this.posMethod === '3P'
+						? this.calculatePos3P(x1, y1, d1, x2, y2, d2, x3, y3, d3)
+						: this.calculatePos2P(x1, y1, d1, x2, y2, d2);
 
-			console.log(`${this.team} player ${this.id}: X = ${round(X)} Y = ${round(Y)}`);
+				console.log(`${this.team} player ${this.id}: X = ${round(X)} Y = ${round(Y)}`);
 
-			// Opponent
-			if (opponents.length) {
-				let [da, alphaa] = [opponents[0].p[0], opponents[0].p[1]];
-				let da1 = Math.sqrt(
-					d1 * d1 +
-						da * da -
-						2 * d1 * da * Math.cos(Math.abs(alpha1 - alphaa) * (Math.PI / 180))
-				);
-				let da2 = Math.sqrt(
-					d2 * d2 +
-						da * da -
-						2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa) * (Math.PI / 180))
-				);
-				let [XO, YO] = this.calculatePos3P(x1, y1, da1, x2, y2, da2, X, Y, da);
-				console.log(
-					`${this.team} player ${this.id} sees ${opponents[0].cmd.p[1]} player: X = ${round(
-						XO
-					)} Y = ${round(YO)}`
-				);
+				// Opponent
+				if (opponents.length) {
+					let [da, alphaa] = [opponents[0].p[0], opponents[0].p[1]];
+					let da1 = Math.sqrt(
+						d1 * d1 +
+							da * da -
+							2 * d1 * da * Math.cos(Math.abs(alpha1 - alphaa) * (Math.PI / 180))
+					);
+					let da2 = Math.sqrt(
+						d2 * d2 +
+							da * da -
+							2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa) * (Math.PI / 180))
+					);
+					let [XO, YO] = this.calculatePos3P(x1, y1, da1, x2, y2, da2, X, Y, da);
+					console.log(
+						`${this.team} player ${this.id} sees ${opponents[0].cmd.p[1]} player: X = ${round(
+							XO
+						)} Y = ${round(YO)}`
+					);
+				}
+			}
+
+			if (this.strat?.name === 'spin') {
+				this.act = { n: 'turn', v: this.strat.speed };
 			}
 		}
 	}
