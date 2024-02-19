@@ -104,19 +104,20 @@ class Agent {
 			if (opponents.length) {
 				let [da, alphaa] = [opponents[0].p[0], opponents[0].p[1]];
 				let da1 = Math.sqrt(
-					d1 * d1 + da * da - 2 * d1 * da * Math.cos(Math.abs(alpha1 - alphaa))
+					d1 * d1 +
+						da * da -
+						2 * d1 * da * Math.cos(Math.abs(alpha1 - alphaa) * (Math.PI / 180))
 				);
 				let da2 = Math.sqrt(
-					d2 * d2 + da * da - 2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa))
+					d2 * d2 +
+						da * da -
+						2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa) * (Math.PI / 180))
 				);
-				let da3 = Math.sqrt(
-					d3 * d3 + da * da - 2 * d3 * da * Math.cos(Math.abs(alpha3 - alphaa))
-				);
-				let [X, Y] = this.calculatePos3P(x1, y1, da1, x2, y2, da2, x3, y3, da3);
+				let [XO, YO] = this.calculatePos3P(x1, y1, da1, x2, y2, da2, X, Y, da);
 				console.log(
 					`${this.team} player ${this.id} sees ${opponents[0].cmd.p[1]} player: X = ${round(
-						X
-					)} Y = ${round(Y)}`
+						XO
+					)} Y = ${round(YO)}`
 				);
 			}
 		}
