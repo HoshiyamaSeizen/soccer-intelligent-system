@@ -2,8 +2,10 @@ const Msg = require('./msg');
 const readline = require('readline');
 const Flags = require('./flags');
 
+const round = (a) => Math.round(a * 100) / 100;
+
 class Agent {
-	constructor() {
+	constructor(team) {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // ИГра начата
 		this.act = null; // Действия
@@ -12,6 +14,7 @@ class Agent {
 			input: process.stdin,
 			output: process.stdout,
 		});
+		this.team = team;
 		this.posMethod = '3P';
 		this.rl.on('line', (input) => {
 			// Обработка строки из кон—
@@ -56,16 +59,21 @@ class Agent {
 	analyzeEnv(msg, cmd, p) {
 		if (cmd == 'see') {
 			let observedFlags = [];
+			let opponents = [];
 
 			const xs = [];
 			for (let i = 1; i < p.length; i++) {
 				let flagName = p[i].cmd.p.join('');
 				if (Object.keys(Flags).includes(flagName) && p[i].p.length >= 2) {
+					// Flag
 					let x = Flags[flagName].x;
 					if (!xs.includes(x)) {
 						observedFlags.push(p[i]);
 						xs.push(x);
 					}
+				} else if (p[i].cmd.p[0] === 'p' && p[i].cmd.p[1] !== this.team) {
+					// Opponent
+					opponents.push(p[i]);
 				}
 			}
 
@@ -77,21 +85,40 @@ class Agent {
 			observedFlags.sort((a, b) => a.p[0] - b.p[0]);
 			let extractFlagCoordsAndDistance = (observedFlag) => {
 				let flagName = observedFlag.cmd.p.join('');
-				return [Flags[flagName].x, Flags[flagName].y, observedFlag.p[0]]; // X, Y, расстояние до флага
+				return [Flags[flagName].x, Flags[flagName].y, observedFlag.p[0], observedFlag.p[1]]; // X, Y, расстояние до флага, угол
 			};
 
-			let [x1, y1, d1] = extractFlagCoordsAndDistance(observedFlags[0]);
-			let [x2, y2, d2] = extractFlagCoordsAndDistance(observedFlags[1]);
-			let [x3, y3, d3] =
-				this.posMethod === '3P' ? extractFlagCoordsAndDistance(observedFlags[2]) : [0, 0, 0];
+			let [x1, y1, d1, alpha1] = extractFlagCoordsAndDistance(observedFlags[0]);
+			let [x2, y2, d2, alpha2] = extractFlagCoordsAndDistance(observedFlags[1]);
+			let [x3, y3, d3, alpha3] =
+				this.posMethod === '3P' ? extractFlagCoordsAndDistance(observedFlags[2]) : [0, 0, 0, 0];
 
 			let [X, Y] =
 				this.posMethod === '3P'
 					? this.calculatePos3P(x1, y1, d1, x2, y2, d2, x3, y3, d3)
 					: this.calculatePos2P(x1, y1, d1, x2, y2, d2);
 
-			console.log('X = ', X, 'Y = ', Y);
-			console.log('\n');
+			console.log(`${this.team} player ${this.id}: X = ${round(X)} Y = ${round(Y)}`);
+
+			// Opponent
+			if (opponents.length) {
+				let [da, alphaa] = [opponents[0].p[0], opponents[0].p[1]];
+				let da1 = Math.sqrt(
+					d1 * d1 + da * da - 2 * d1 * da * Math.cos(Math.abs(alpha1 - alphaa))
+				);
+				let da2 = Math.sqrt(
+					d2 * d2 + da * da - 2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa))
+				);
+				let da3 = Math.sqrt(
+					d3 * d3 + da * da - 2 * d3 * da * Math.cos(Math.abs(alpha3 - alphaa))
+				);
+				let [X, Y] = this.calculatePos3P(x1, y1, da1, x2, y2, da2, x3, y3, da3);
+				console.log(
+					`${this.team} player ${this.id} sees ${opponents[0].cmd.p[1]} player: X = ${round(
+						X
+					)} Y = ${round(Y)}`
+				);
+			}
 		}
 	}
 	calculatePos3P(x1, y1, d1, x2, y2, d2, x3, y3, d3) {
@@ -106,7 +133,6 @@ class Agent {
 		return [X, Y];
 	}
 	calculatePos2P(x1, y1, d1, x2, y2, d2) {
-		console.log([x1, y1, d1, x2, y2, d2]);
 		const field = { l: -57.5, r: 57.5, t: 39, b: -39 };
 		let X, Y;
 
