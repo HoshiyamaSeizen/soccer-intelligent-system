@@ -61,8 +61,8 @@ class Agent {
 		if (p[1]) this.id = p[1]; // id игрока
 	}
 	correctMovement(angle, dist) { // необходимое расстояние до цели, угол под которым она видна, текущее расстояние до цели
-		if (angle > 1) this.act = { n: 'turn', v: angle };
-		else if (angle < -1) this.act = { n: 'turn', v: -angle };
+		if (angle > 2) this.act = { n: 'turn', v: angle };
+		else if (angle < -2) this.act = { n: 'turn', v: -angle };
 		else if (dist >= 10) this.act = { n: 'dash', v: 100 };
 		else this.act = { n: 'dash', v: 50 };
 	}
@@ -157,7 +157,7 @@ class Agent {
 							da * da -
 							2 * d2 * da * Math.cos(Math.abs(alpha2 - alphaa) * (Math.PI / 180))
 					);
-					let [XO, YO] = (x1, y1, da1, x2, y2, da2, X, Y, da);
+					let [XO, YO] = calculatePos3P(x1, y1, da1, x2, y2, da2, X, Y, da);
 					console.log(
 						`${this.team} player ${this.id} sees ${opponents[0].cmd.p[1]} player: X = ${round(
 							XO
