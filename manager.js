@@ -92,12 +92,12 @@ const Manager = {
 			const [x1, y1, d1, alpha1] = this.extractFlagCoordsAndDistance(this.uniqueXFlags[0]);
 			const [x2, y2, d2, alpha2] = this.extractFlagCoordsAndDistance(this.uniqueXFlags[1]);
 			const [x3, y3, d3, alpha3] =
-				this.posMethod === '3P'
+				method === '3P'
 					? this.extractFlagCoordsAndDistance(this.uniqueXFlags[2])
 					: [0, 0, 0, 0];
 
 			const [x, y] =
-				this.posMethod === '3P'
+				method === '3P'
 					? calculatePos3P(x1, y1, d1, x2, y2, d2, x3, y3, d3)
 					: calculatePos2P(x1, y1, d1, x2, y2, d2);
 

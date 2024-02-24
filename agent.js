@@ -57,7 +57,7 @@ class Agent {
 		this.dt = Object.create(DT).init();
 	}
 	analyzeEnv(msg, cmd, p) {
-		// if (this.team === 'teamB') return;
+		if (this.team === 'teamB') return;
 		const mgr = Object.create(Manager).init(cmd, p, this.team);
 
 		if (mgr.stopRunning()) {
