@@ -54,17 +54,15 @@ class Agent {
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
+		this.dt = Object.create(DT).init();
 	}
 	analyzeEnv(msg, cmd, p) {
 		// if (this.team === 'teamB') return;
-		const dt = Object.create(DT);
-		const mgr = Object.create(Manager);
-
-		mgr.init(cmd, p, this.team);
+		const mgr = Object.create(Manager).init(cmd, p, this.team);
 
 		if (mgr.stopRunning()) {
 			this.run = false;
-			dt.state.next = 0;
+			this.dt.state.next = 0;
 		}
 
 		if (cmd == 'see') {
@@ -76,7 +74,7 @@ class Agent {
 			// console.log(teammate);
 			// console.log(opponent);
 
-			if (this.run) this.act = mgr.getAction(dt);
+			if (this.run) this.act = mgr.getAction(this.dt);
 		}
 	}
 	sendCmd() {

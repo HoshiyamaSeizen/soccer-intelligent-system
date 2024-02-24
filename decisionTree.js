@@ -2,14 +2,17 @@ const FL = 'flag',
 	KI = 'kick';
 
 const DT = {
-	state: {
-		next: 0,
-		sequence: [
-			{ act: FL, fl: 'fplt' },
-			{ act: FL, fl: 'fplc' },
-			{ act: KI, fl: 'b', goal: 'gr' },
-		],
-		command: null,
+	init() {
+		this.state = {
+			next: 0,
+			sequence: [
+				{ act: FL, fl: 'fplt' },
+				{ act: FL, fl: 'fplc' },
+				{ act: KI, fl: 'b', goal: 'gr' },
+			],
+			command: null,
+		};
+		return this;
 	},
 	root: {
 		exec(mgr, state) {

@@ -20,6 +20,7 @@ const Manager = {
 		this.pos = null;
 		this.bodyAngle = 0;
 		this.processEnv(cmd, p);
+		return this;
 	},
 	extractFlagCoordsAndDistance(observedFlag) {
 		const flag = Flags[observedFlag.name];
