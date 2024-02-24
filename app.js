@@ -2,7 +2,7 @@ const readline = require('readline');
 const Agent = require('./agent');
 const Socket = require('./socket');
 const VERSION = 7;
-const INPUT = true;
+const INPUT = false;
 
 let teamNameA = 'teamA';
 let teamNameB = 'teamB';
@@ -23,11 +23,11 @@ let teamNameB = 'teamB';
 	}
 
 	let pA1 = new Agent(teamNameA, coords);
-	//let pB1 = new Agent(teamNameB);
+	// let pB1 = new Agent(teamNameB, coords);
 
 	await Socket(pA1, pA1.team, VERSION);
-	//await Socket(pB1, pB1.team, VERSION);
+	// await Socket(pB1, pB1.team, VERSION);
 
 	await pA1.socketSend('move', `${coords[0]} ${coords[1]}`);
-	//await pB1.socketSend('move', `${-c2[0]} ${-c2[1]}`);
+	// await pB1.socketSend('move', `${coords[0]} ${-coords[1]}`);
 })();
