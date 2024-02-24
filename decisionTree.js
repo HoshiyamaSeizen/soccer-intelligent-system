@@ -5,6 +5,9 @@ const DT = {
 	init() {
 		this.state = {
 			next: 0,
+			increaseNext() {
+				this.next = (this.next + 1) % this.sequence.length;
+			},
 			sequence: [
 				{ act: FL, fl: 'fplt' },
 				{ act: FL, fl: 'fplc' },
@@ -44,13 +47,13 @@ const DT = {
 	},
 	closeFlag: {
 		exec(mgr, state) {
-			state.next++;
+			state.increaseNext();
 			state.action = state.sequence[state.next];
 		},
 		next: 'goalVisible',
 	},
 	farGoal: {
-		condition: (mgr, state) => mgr.getAngle(state.action.fl) > 4,
+		condition: (mgr, state) => Math.abs(mgr.getAngle(state.action.fl)) > 4,
 		trueCond: 'rotateToGoal',
 		falseCond: 'runToGoal',
 	},

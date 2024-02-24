@@ -62,7 +62,7 @@ class Agent {
 
 		if (mgr.stopRunning()) {
 			this.run = false;
-			this.dt.state.next = 0;
+			this.dt.state.increaseNext();
 		}
 
 		if (cmd == 'see') {
