@@ -58,7 +58,7 @@ class Agent {
 	}
 	analyzeEnv(msg, cmd, p) {
 		if (this.team === 'teamB') return;
-		const mgr = Object.create(Manager).init(cmd, p, this.team);
+		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
 
 		if (mgr.stopRunning()) {
 			this.run = false;
@@ -67,6 +67,7 @@ class Agent {
 
 		if (cmd == 'see') {
 			const pos = mgr.getLocation();
+			[this.x, this.y] = [pos.x, pos.y];
 			const teammate = mgr.getTeamLocationFirstPlayer();
 			const opponent = mgr.getTeamLocationFirstPlayer(false);
 

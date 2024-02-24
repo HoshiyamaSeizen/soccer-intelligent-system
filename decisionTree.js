@@ -9,8 +9,7 @@ const DT = {
 				this.next = (this.next + 1) % this.sequence.length;
 			},
 			sequence: [
-				{ act: FL, fl: 'fplt' },
-				{ act: FL, fl: 'fplc' },
+				{ act: FL, fl: 'fprt' },
 				{ act: KI, fl: 'b', goal: 'gr' },
 			],
 			command: null,
@@ -78,9 +77,13 @@ const DT = {
 		falseCond: 'farGoal',
 	},
 	closeBall: {
-		condition: (mgr, state) => mgr.getVisible(state.action.goal),
-		trueCond: 'ballGoalVisible',
-		falseCond: 'ballGoalInvisible',
+		exec(mgr, state) {
+			state.command = { n: 'kick', v: `100 ${mgr.getKickAngle(state.action.goal)}` };
+		},
+		next: 'sendCommand',
+		// condition: (mgr, state) => mgr.getVisible(state.action.goal),
+		// trueCond: 'ballGoalVisible',
+		// falseCond: 'ballGoalInvisible',
 	},
 	ballGoalVisible: {
 		exec(mgr, state) {

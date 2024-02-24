@@ -7,7 +7,7 @@ const {
 } = require('./calculations');
 
 const Manager = {
-	init(cmd, p, team) {
+	init(cmd, p, team, x, y) {
 		this.p = p;
 		this.cmd = cmd;
 		this.team = team;
@@ -17,7 +17,7 @@ const Manager = {
 		this.uniqueXFlags = [];
 		this.teammates = [];
 		this.opponents = [];
-		this.pos = null;
+		this.pos = {x, y};
 		this.bodyAngle = 0;
 		this.processEnv(cmd, p);
 		return this;
@@ -72,7 +72,7 @@ const Manager = {
 				let [closestFlagX, closestFlagY, closestFlagDist, closestFlagAngle] =
 					this.extractFlagCoordsAndDistance(this.uniqueXFlags[0]);
 				this.bodyAngle =
-					calculateAngle(this.X, this.Y, closestFlagX, closestFlagY) - closestFlagAngle;
+					calculateAngle(this.pos.x, this.pos.y, closestFlagX, closestFlagY) - closestFlagAngle;
 				if (this.bodyAngle < 0) this.bodyAngle += 360;
 				if (this.bodyAngle > 360) this.bodyAngle -= 360;
 			}
@@ -141,6 +141,13 @@ const Manager = {
 	},
 	getAngle(flagName) {
 		return this.observedFlags.find((fl) => fl.name === flagName).angle;
+	},
+	getKickAngle(goal){
+		let goalCoords = Flags[goal];
+		let angleToGoal = calculateAngle(this.pos.x, this.pos.y, +goalCoords.x, +goalCoords.y);
+		let tmp = calculateRotationAngle(angleToGoal, this.bodyAngle);
+		console.log("PLAYER: ", this.pos.x, " ", this.pos.y, " GOAL: ", goalCoords, " ANGLE: ", tmp, " PLAYER ANGLE: ", this.bodyAngle);
+		return tmp
 	},
 	stopRunning() {
 		return this.goal;
