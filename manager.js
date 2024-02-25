@@ -19,6 +19,7 @@ const Manager = {
 		this.opponents = [];
 		this.pos = { x, y };
 		this.bodyAngle = 0;
+		this.isLeader = false;
 		this.processEnv(cmd, p);
 		return this;
 	},
@@ -48,7 +49,7 @@ const Manager = {
 				}
 
 				// Напарники
-				else if (p[i].cmd.p[0] === 'p' && p[i].cmd.p[1] === this.team) {
+				else if (p[i].cmd.p[0] === 'p' && p[i].cmd.p[1]?.replace(/"/gi, '') === this.team) {
 					this.teammates.push({ angle, dist, p: p[i] });
 					this.observedFlags.push({ name: 'p', team: p[i].cmd.p[1], angle, dist, p: p[i] });
 				}

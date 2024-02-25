@@ -22,12 +22,16 @@ let teamNameB = 'teamB';
 		coords = [-15, 0];
 	}
 
-	let pA1 = new Agent(teamNameA, coords, 'player');
+	//let pA1 = new Agent(teamNameA, coords, 'player');
+	let pA1 = new Agent(teamNameA, coords, 'groupPlayer');
+	let pA2 = new Agent(teamNameA, coords, 'groupPlayer');
 	let pB1 = new Agent(teamNameB, coords, 'goalkeeper');
 
 	await Socket(pA1, pA1.team, VERSION);
+	await Socket(pA2, pA2.team, VERSION);
 	await Socket(pB1, pB1.team, VERSION, true);
 
 	await pA1.socketSend('move', `${coords[0]} ${coords[1]}`);
+	await pA2.socketSend('move', '-20 0');
 	await pB1.socketSend('move', `${coords[0]} ${coords[1]}`);
 })();

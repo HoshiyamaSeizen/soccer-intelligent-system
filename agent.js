@@ -16,6 +16,8 @@ class Agent {
 		});
 		this.x = coords[0];
 		this.y = coords[1];
+		this.leadershipDefined = false;
+		this.isLeader = false;
 		this.team = team;
 		this.strat = strat;
 		this.rl.on('line', (input) => {
@@ -59,7 +61,7 @@ class Agent {
 	}
 	analyzeEnv(msg, cmd, p) {
 		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
-
+		mgr.isLeader = this.isLeader;
 		if (mgr.stopRunning()) {
 			this.run = false;
 			this.dt.state.next = 0;
@@ -70,6 +72,11 @@ class Agent {
 			[this.x, this.y] = [pos.x, pos.y];
 			const teammate = mgr.getTeamLocationFirstPlayer();
 			const opponent = mgr.getTeamLocationFirstPlayer(false);
+
+			if (this.leadershipDefined == false){
+				if (mgr.teammates.length < 1) {this.isLeader = true; mgr.isLeader = true;}
+				this.leadershipDefined = true;
+			}
 
 			// console.log(pos);
 			// console.log(teammate);
