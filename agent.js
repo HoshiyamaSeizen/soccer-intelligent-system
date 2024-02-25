@@ -4,7 +4,7 @@ const Manager = require('./Manager');
 const { DT } = require('./DecisionTree');
 
 class Agent {
-	constructor(team, coords) {
+	constructor(team, coords, strat = 'player') {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // Игра начата
 		this.act = null; // Действия
@@ -17,6 +17,7 @@ class Agent {
 		this.x = coords[0];
 		this.y = coords[1];
 		this.team = team;
+		this.strat = strat;
 		this.rl.on('line', (input) => {
 			if (this.run) {
 				// Если игра начата
@@ -54,15 +55,14 @@ class Agent {
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
-		this.dt = Object.create(DT).init();
+		this.dt = Object.create(DT[this.strat]).init();
 	}
 	analyzeEnv(msg, cmd, p) {
-		if (this.team === 'teamB') return;
 		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
 
 		if (mgr.stopRunning()) {
 			this.run = false;
-			this.dt.state.increaseNext();
+			this.dt.state.next = 0;
 		}
 
 		if (cmd == 'see') {

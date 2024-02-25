@@ -17,7 +17,7 @@ const Manager = {
 		this.uniqueXFlags = [];
 		this.teammates = [];
 		this.opponents = [];
-		this.pos = {x, y};
+		this.pos = { x, y };
 		this.bodyAngle = 0;
 		this.processEnv(cmd, p);
 		return this;
@@ -72,7 +72,8 @@ const Manager = {
 				let [closestFlagX, closestFlagY, closestFlagDist, closestFlagAngle] =
 					this.extractFlagCoordsAndDistance(this.uniqueXFlags[0]);
 				this.bodyAngle =
-					calculateAngle(this.pos.x, this.pos.y, closestFlagX, closestFlagY) - closestFlagAngle;
+					calculateAngle(this.pos.x, this.pos.y, closestFlagX, closestFlagY) -
+					closestFlagAngle;
 				if (this.bodyAngle < 0) this.bodyAngle += 360;
 				if (this.bodyAngle > 360) this.bodyAngle -= 360;
 			}
@@ -105,6 +106,15 @@ const Manager = {
 		}
 
 		return this.pos;
+	},
+	inPenaltyZone(side = 'r') {
+		const { x, y } = this.pos;
+		const { fprt, fprb, fplt, fplb } = Flags;
+
+		return (
+			(side === 'r' && x > fprt.x && y > fprt.y && y < fprb.y) ||
+			(side === 'l' && x < fplt.x && y > fplt.y && y < fplb.y)
+		);
 	},
 	getTeamLocationFirstPlayer(ourTeam = true) {
 		if (this.uniqueXFlags.length >= 3) {
@@ -139,15 +149,22 @@ const Manager = {
 	getDistance(flagName) {
 		return this.observedFlags.find((fl) => fl.name === flagName).dist;
 	},
+	getDistanceAppr(flagName) {
+		const fl = this.observedFlags.find((fl) => fl.name === flagName);
+		if (fl) return fl.dist;
+
+		const flag = Flags[flagName];
+		return Math.sqrt((this.pos.x - flag.x) ** 2 + (this.pos.y - flag.y) ** 2) || 100;
+	},
 	getAngle(flagName) {
 		return this.observedFlags.find((fl) => fl.name === flagName).angle;
 	},
-	getKickAngle(goal){
+	getKickAngle(goal) {
 		let goalCoords = Flags[goal];
 		let angleToGoal = calculateAngle(this.pos.x, this.pos.y, +goalCoords.x, +goalCoords.y);
 		let tmp = calculateRotationAngle(angleToGoal, this.bodyAngle);
-		console.log("PLAYER: ", this.pos.x, " ", this.pos.y, " GOAL: ", goalCoords, " ANGLE: ", tmp, " PLAYER ANGLE: ", this.bodyAngle);
-		return tmp
+		// console.log("PLAYER: ", this.pos.x, " ", this.pos.y, " GOAL: ", goalCoords, " ANGLE: ", tmp, " PLAYER ANGLE: ", this.bodyAngle);
+		return tmp;
 	},
 	stopRunning() {
 		return this.goal;
