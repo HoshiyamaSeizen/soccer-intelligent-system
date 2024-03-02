@@ -435,7 +435,7 @@ const DT = {
 		},
 		stand:{
 			exec(mgr, state) {
-				state.command =  { n: 'say', v: "go" };;
+				state.command =  { n: 'say', v: "go" };
 			},
 			next: 'sendCommand',
 		},
@@ -504,7 +504,7 @@ const DT = {
 		ballGoalVisible: {
 			exec(mgr, state) {
 				state.kickDone = true;
-				state.command = { n: 'kick', v: `${mgr.teammates[0].dist+20} ${mgr.teammates[0].angle-15}` };
+				state.command = { n: 'kick', v: `${mgr.teammates[0].dist+20} ${mgr.teammates[0].angle-45}` };
 			},
 			next: 'sendCommand',
 		},
@@ -613,6 +613,29 @@ const DT = {
 				state.command = { n: 'kick', v: '10 45' };
 			},
 			next: 'sendCommand',
+		},
+	},
+	bolvan: {
+		init() {
+			this.state = {
+				kickDone: false,
+				next: 0,
+				increaseNext() {
+					this.next = (this.next + 1) % this.sequence.length;
+				},
+				sequence: strategy.passer,
+				command: null,
+			};
+			return this;
+		},
+		root: {
+			exec(mgr, state) {
+				state.command =  null;
+			},
+			next: 'sendCommand',
+		},
+		sendCommand: {
+			command: (mgr, state) => state.command,
 		},
 	},
 };
