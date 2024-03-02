@@ -1,7 +1,7 @@
 const Msg = require('./msg');
 const readline = require('readline');
-const Manager = require('./Manager');
-const { DT } = require('./DecisionTree');
+const Manager = require('./manager');
+const { DT } = require('./decisionTree');
 
 class Agent {
 	constructor(team, coords, strat = 'player') {
@@ -73,8 +73,11 @@ class Agent {
 			const teammate = mgr.getTeamLocationFirstPlayer();
 			const opponent = mgr.getTeamLocationFirstPlayer(false);
 
-			if (this.leadershipDefined == false){
-				if (mgr.teammates.length < 1) {this.isLeader = true; mgr.isLeader = true;}
+			if (this.leadershipDefined == false) {
+				if (mgr.teammates.length < 1) {
+					this.isLeader = true;
+					mgr.isLeader = true;
+				}
 				this.leadershipDefined = true;
 			}
 

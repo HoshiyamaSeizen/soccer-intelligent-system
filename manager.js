@@ -32,6 +32,7 @@ const Manager = {
 			this.goal = true;
 		} else if (cmd == 'see') {
 			const xs = [];
+			const ys = [];
 
 			for (let i = 1; i < p.length; i++) {
 				let objectName = p[i].cmd.p.join(''); // имя видимого объекта на поле
@@ -41,10 +42,12 @@ const Manager = {
 				// ФЛАГИ
 				if (Object.keys(Flags).includes(objectName) && p[i].p.length >= 2) {
 					let x = Flags[objectName].x;
+					let y = Flags[objectName].y;
 					this.observedFlags.push({ name: objectName, angle, dist, p: p[i] });
-					if (!xs.includes(x)) {
+					if (!xs.includes(x) && ys.filter((v) => v === y).length < 2) {
 						this.uniqueXFlags.push({ name: objectName, angle, dist, p: p[i] });
 						xs.push(x);
+						ys.push(y);
 					}
 				}
 
