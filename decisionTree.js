@@ -258,22 +258,28 @@ const DT = {
 			falseCond: 'rotate90',
 		},
 		closeToLeader: {
-			condition: (mgr, state) => mgr.teammates[0].dist <= 1 && Math.abs(mgr.teammates[0].angle) < 40,
+			condition: (mgr, state) =>
+				mgr.teammates[0].dist <= 1 && Math.abs(mgr.teammates[0].angle) < 40,
 			trueCond: 'rotate30',
 			falseCond: 'farToLeader',
 		},
 		farToLeader: {
-			condition: (mgr, state) => mgr.teammates[0].dist > 10,
+			condition: (mgr, state) => mgr.teammates[0].dist > 20,
 			trueCond: 'goToLeader',
-			falseCond: 'midDistToLeader', 
+			falseCond: 'midDistToLeader',
 		},
 		midDistToLeader: {
-			condition: (mgr, state) => mgr.teammates[0].angle > 40 || mgr.teammates[0].angle < 25,
-			trueCond: 'rotateMinus30',
+			condition: (mgr, state) => mgr.teammates[0].angle > 35 || mgr.teammates[0].angle < 25,
+			trueCond: 'rotateTo30',
 			falseCond: 'midMidDistToLeader',
 		},
 		midMidDistToLeader: {
 			condition: (mgr, state) => mgr.teammates[0].dist < 7,
+			trueCond: 'littleDistToLeader',
+			falseCond: 'runToGoal',
+		},
+		littleDistToLeader: {
+			condition: (mgr, state) => mgr.teammates[0].dist < 3,
 			trueCond: 'dash20',
 			falseCond: 'dash40',
 		},
@@ -305,9 +311,9 @@ const DT = {
 			},
 			next: 'sendCommand',
 		},
-		rotateMinus30: {
+		rotateTo30: {
 			exec(mgr, state) {
-				state.command = { n: 'turn', v: '-30' };
+				state.command = { n: 'turn', v: `${mgr.teammates[0].angle - 30}` };
 			},
 			next: 'sendCommand',
 		},
