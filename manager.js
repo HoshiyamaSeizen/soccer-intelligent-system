@@ -20,6 +20,7 @@ const Manager = {
 		this.pos = { x, y };
 		this.bodyAngle = 0;
 		this.isLeader = false;
+		this.didHearGo = false;
 		this.processEnv(cmd, p);
 		return this;
 	},

@@ -19,6 +19,7 @@ class Agent {
 		this.leadershipDefined = false;
 		this.isLeader = false;
 		this.team = team;
+		this.didHearGo = false;
 		this.strat = strat;
 		this.rl.on('line', (input) => {
 			if (this.run) {
@@ -52,6 +53,7 @@ class Agent {
 		// Первое (hear) — начало игры
 		if (data.cmd == 'hear' && data.p[2] == 'play_on') this.run = true;
 		if (data.cmd == 'init') this.initAgent(data.p); // Инициализация
+		if (data.cmd == 'hear' && data.p[2] == '"go"') this.didHearGo = true;
 		this.analyzeEnv(data.msg, data.cmd, data.p); // Обработка
 	}
 	initAgent(p) {
@@ -59,12 +61,19 @@ class Agent {
 		if (p[1]) this.id = p[1]; // id игрока
 		this.dt = Object.create(DT[this.strat]).init();
 	}
-	analyzeEnv(msg, cmd, p) {
+	async analyzeEnv(msg, cmd, p) {
 		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
 		mgr.isLeader = this.isLeader;
+		mgr.didHearGo = this.didHearGo;
 		if (mgr.stopRunning()) {
+			this.dt.state.kickDone = false;
+			this.dt.state.didHearGo = false;
 			this.run = false;
 			this.dt.state.next = 0;
+			if (this.strat == "passer")
+				await this.socketSend('move', '-20 0');
+			if (this.strat == "goaler")
+				await this.socketSend('move', '-20 -20');
 		}
 
 		if (cmd == 'see') {
