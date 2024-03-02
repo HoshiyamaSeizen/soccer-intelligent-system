@@ -68,6 +68,7 @@ class Agent {
 		if (mgr.stopRunning()) {
 			this.dt.state.kickDone = false;
 			this.dt.state.didHearGo = false;
+			this.didHearGo = false;
 			this.run = false;
 			this.dt.state.next = 0;
 			if (this.strat == "passer")
