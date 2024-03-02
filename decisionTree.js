@@ -4,6 +4,9 @@ const FL = 'flag',
 	KI = 'kick',
 	CA = 'catch';
 
+const LSPEED = 60;
+const FSPEED = 100;
+
 const DT = {
 	player: {
 		init() {
@@ -276,7 +279,7 @@ const DT = {
 		midMidDistToLeader: {
 			condition: (mgr, state) => mgr.teammates[0].dist < 7,
 			trueCond: 'littleDistToLeader',
-			falseCond: 'runToGoal',
+			falseCond: `dash${FSPEED}`,
 		},
 		littleDistToLeader: {
 			condition: (mgr, state) => mgr.teammates[0].dist < 3,
@@ -286,7 +289,7 @@ const DT = {
 		goToLeader: {
 			condition: (mgr, state) => Math.abs(mgr.teammates[0].angle) > 5,
 			trueCond: 'rotateToLeader',
-			falseCond: 'runToGoal',
+			falseCond: `dash${FSPEED}`,
 		},
 		rotateToLeader: {
 			exec(mgr, state) {
@@ -337,17 +340,11 @@ const DT = {
 		farGoal: {
 			condition: (mgr, state) => Math.abs(mgr.getAngle(state.action.fl)) > 4,
 			trueCond: 'rotateToGoal',
-			falseCond: 'runToGoal',
+			falseCond: `dash${LSPEED}`,
 		},
 		rotateToGoal: {
 			exec(mgr, state) {
 				state.command = { n: 'turn', v: mgr.getAngle(state.action.fl) };
-			},
-			next: 'sendCommand',
-		},
-		runToGoal: {
-			exec(mgr, state) {
-				state.command = { n: 'dash', v: 100 };
 			},
 			next: 'sendCommand',
 		},
@@ -360,6 +357,24 @@ const DT = {
 		dash40: {
 			exec(mgr, state) {
 				state.command = { n: 'dash', v: 40 };
+			},
+			next: 'sendCommand',
+		},
+		dash60: {
+			exec(mgr, state) {
+				state.command = { n: 'dash', v: 60 };
+			},
+			next: 'sendCommand',
+		},
+		dash80: {
+			exec(mgr, state) {
+				state.command = { n: 'dash', v: 80 };
+			},
+			next: 'sendCommand',
+		},
+		dash100: {
+			exec(mgr, state) {
+				state.command = { n: 'dash', v: 100 };
 			},
 			next: 'sendCommand',
 		},
