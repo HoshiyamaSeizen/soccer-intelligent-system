@@ -11,7 +11,6 @@ const Manager = {
 		this.p = p;
 		this.cmd = cmd;
 		this.team = team;
-		this.goal = false;
 		this.ball = null;
 		this.observedFlags = [];
 		this.uniqueXFlags = [];
@@ -29,9 +28,7 @@ const Manager = {
 		return [flag.x, flag.y, observedFlag.dist, observedFlag.angle]; // X, Y, расстояние до флага, угол
 	},
 	processEnv(cmd, p) {
-		if (cmd == 'hear' && p[2].includes('goal')) {
-			this.goal = true;
-		} else if (cmd == 'see') {
+		if (cmd == 'see') {
 			const xs = [];
 			const ys = [];
 
@@ -168,11 +165,7 @@ const Manager = {
 		let goalCoords = Flags[goal];
 		let angleToGoal = calculateAngle(this.pos.x, this.pos.y, +goalCoords.x, +goalCoords.y);
 		let tmp = calculateRotationAngle(angleToGoal, this.bodyAngle);
-		// console.log("PLAYER: ", this.pos.x, " ", this.pos.y, " GOAL: ", goalCoords, " ANGLE: ", tmp, " PLAYER ANGLE: ", this.bodyAngle);
 		return tmp;
-	},
-	stopRunning() {
-		return this.goal;
 	},
 	getAction(dt) {
 		const mgr = this;

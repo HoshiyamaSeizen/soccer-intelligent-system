@@ -428,14 +428,14 @@ const DT = {
 			},
 			next: 'isKickDone',
 		},
-		isKickDone:{
-			condition: (mgr, state) => {return state.kickDone},
+		isKickDone: {
+			condition: (mgr, state) => state.kickDone,
 			trueCond: 'stand',
 			falseCond: 'goalVisible',
 		},
-		stand:{
+		stand: {
 			exec(mgr, state) {
-				state.command =  { n: 'say', v: "go" };
+				state.command = { n: 'say', v: 'go' };
 			},
 			next: 'sendCommand',
 		},
@@ -493,18 +493,17 @@ const DT = {
 			falseCond: 'farGoal',
 		},
 		closeBall: {
-			// exec(mgr, state) {
-			// 	state.command = { n: 'kick', v: `100 ${mgr.getKickAngle(state.action.goal)}` };
-			// },
-			// next: 'sendCommand',
-			condition: (mgr, state) => {if (mgr.teammates.length > 0) return true; else return false},
+			condition: (mgr, state) => mgr.teammates.length > 0,
 			trueCond: 'ballGoalVisible',
 			falseCond: 'ballGoalInvisible',
 		},
 		ballGoalVisible: {
 			exec(mgr, state) {
 				state.kickDone = true;
-				state.command = { n: 'kick', v: `${mgr.teammates[0].dist+20} ${mgr.teammates[0].angle-45}` };
+				state.command = {
+					n: 'kick',
+					v: `${mgr.teammates[0].dist + 20} ${mgr.teammates[0].angle - 45}`,
+				};
 			},
 			next: 'sendCommand',
 		},
@@ -539,8 +538,8 @@ const DT = {
 				if (mgr.getVisible('b') && state.next == 1 && mgr.didHearGo) {
 					state.next = 2;
 					state.action = state.sequence[state.next];
-				} 
-				return mgr.getVisible(state.action.fl)
+				}
+				return mgr.getVisible(state.action.fl);
 			},
 			trueCond: 'rootNext',
 			falseCond: 'rotate',
@@ -594,10 +593,6 @@ const DT = {
 			falseCond: 'farGoal',
 		},
 		closeBall: {
-			// exec(mgr, state) {
-			// 	state.command = { n: 'kick', v: `100 ${mgr.getKickAngle(state.action.goal)}` };
-			// },
-			// next: 'sendCommand',
 			condition: (mgr, state) => mgr.getVisible(state.action.goal),
 			trueCond: 'ballGoalVisible',
 			falseCond: 'ballGoalInvisible',
@@ -618,7 +613,6 @@ const DT = {
 	bolvan: {
 		init() {
 			this.state = {
-				kickDone: false,
 				next: 0,
 				increaseNext() {
 					this.next = (this.next + 1) % this.sequence.length;
@@ -630,7 +624,7 @@ const DT = {
 		},
 		root: {
 			exec(mgr, state) {
-				state.command =  null;
+				state.command = null;
 			},
 			next: 'sendCommand',
 		},

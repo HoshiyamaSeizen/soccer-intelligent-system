@@ -49,32 +49,34 @@ class Agent {
 	processMsg(msg) {
 		// Обработка сообщения
 		let data = Msg.parseMsg(msg); // Разбор сообщения
+		let goal = false;
+
 		if (!data) throw new Error('Parse error\n' + msg);
 		// Первое (hear) — начало игры
 		if (data.cmd == 'hear' && data.p[2] == 'play_on') this.run = true;
 		if (data.cmd == 'init') this.initAgent(data.p); // Инициализация
 		if (data.cmd == 'hear' && data.p[2] == '"go"') this.didHearGo = true;
-		this.analyzeEnv(data.msg, data.cmd, data.p); // Обработка
+		if (data.cmd == 'hear' && data.p[2].includes('goal')) goal = true;
+		this.analyzeEnv(data.msg, data.cmd, data.p, goal); // Обработка
 	}
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
 		this.dt = Object.create(DT[this.strat]).init();
 	}
-	async analyzeEnv(msg, cmd, p) {
+	async analyzeEnv(msg, cmd, p, goal) {
 		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
 		mgr.isLeader = this.isLeader;
 		mgr.didHearGo = this.didHearGo;
-		if (mgr.stopRunning()) {
+
+		if (goal) {
 			this.dt.state.kickDone = false;
 			this.dt.state.didHearGo = false;
 			this.didHearGo = false;
 			this.run = false;
 			this.dt.state.next = 0;
-			if (this.strat == "passer")
-				await this.socketSend('move', '-20 0');
-			if (this.strat == "goaler")
-				await this.socketSend('move', '-20 -20');
+			if (this.strat == 'passer') await this.socketSend('move', '-20 0');
+			if (this.strat == 'goaler') await this.socketSend('move', '-20 -20');
 		}
 
 		if (cmd == 'see') {
@@ -90,10 +92,6 @@ class Agent {
 				}
 				this.leadershipDefined = true;
 			}
-
-			// console.log(pos);
-			// console.log(teammate);
-			// console.log(opponent);
 
 			if (this.run) this.act = mgr.getAction(this.dt);
 		}
