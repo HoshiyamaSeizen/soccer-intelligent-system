@@ -1,7 +1,7 @@
 const Msg = require('./msg');
 const readline = require('readline');
-const Manager = require('./manager');
-const { DT } = require('./decisionTree');
+const Manager = require('./tmanager');
+const TA = require('./tmachine');
 
 class Agent {
 	constructor(team, coords, strat = 'player') {
@@ -53,7 +53,7 @@ class Agent {
 
 		if (!data) throw new Error('Parse error\n' + msg);
 		// Первое (hear) — начало игры
-		if (data.cmd == 'hear' && data.p[2] == 'play_on') this.run = true;
+		if (data.cmd == 'hear' /*&& data.p[2] == 'play_on'*/) this.run = true;
 		if (data.cmd == 'init') this.initAgent(data.p); // Инициализация
 		if (data.cmd == 'hear' && data.p[2] == '"go"') this.didHearGo = true;
 		if (data.cmd == 'hear' && data.p[2].includes('goal')) goal = true;
@@ -62,38 +62,21 @@ class Agent {
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
-		this.dt = Object.create(DT[this.strat]).init();
+		this.mgr = Object.create(Manager).init(this.team, this.position);
+		this.ta = Object.create(TA[this.strat]).init();
 	}
 	async analyzeEnv(msg, cmd, p, goal) {
-		const mgr = Object.create(Manager).init(cmd, p, this.team, this.x, this.y);
-		mgr.isLeader = this.isLeader;
-		mgr.didHearGo = this.didHearGo;
-
+		if (!this.run) return;
 		if (goal) {
-			this.dt.state.kickDone = false;
-			this.dt.state.didHearGo = false;
-			this.didHearGo = false;
 			this.run = false;
-			this.dt.state.next = 0;
-			if (this.strat == 'passer') await this.socketSend('move', '-20 0');
-			if (this.strat == 'goaler') await this.socketSend('move', '-20 -20');
+			if (this.strat == 'player') await this.socketSend('move', '-20 0');
+			if (this.strat == 'goalie') await this.socketSend('move', '-30 0');
 		}
 
-		if (cmd == 'see') {
-			const pos = mgr.getLocation();
-			[this.x, this.y] = [pos.x, pos.y];
-			const teammate = mgr.getTeamLocationFirstPlayer();
-			const opponent = mgr.getTeamLocationFirstPlayer(false);
-
-			if (this.leadershipDefined == false) {
-				if (mgr.teammates.length < 1) {
-					this.isLeader = true;
-					mgr.isLeader = true;
-				}
-				this.leadershipDefined = true;
-			}
-
-			if (this.run) this.act = mgr.getAction(this.dt);
+		if (cmd === 'hear') this.mgr.setHear(p);
+		if (cmd === 'see') {
+			this.act = this.mgr.getAction(p, this.ta);
+			// if (this.position === 'r') console.log(this.act);
 		}
 	}
 	sendCmd() {
