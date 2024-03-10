@@ -14,6 +14,7 @@ const Manager = {
 		this.taken.setSee(input);
 		this.incTimers(this.taken, ta);
 		if (ta.actions[BEFORE_ACTION]) ta.actions[BEFORE_ACTION](this.taken, ta.state);
+		// if (this.taken.teamName === 'teamB') console.log(ta.current);
 		return this.execute(this.taken, ta);
 	},
 	incTimers(taken, ta) {
@@ -66,9 +67,8 @@ const Manager = {
 					// Необходима синхронизация
 					if (e.synch.endsWith('?')) {
 						// Проверка условия
-						let cond = e.synch.substr(0, e.synch.length - l);
+						let cond = e.synch.substr(0, e.synch.length - 1);
 						if (!ta.actions[cond]) throw `Unexpected synch: ${e.synch}`;
-						console.log(`Synch[${taken.time}]: ${e.synch}`);
 						if (!ta.actions[cond](taken, ta.state)) continue; // ПpовepKa не успешна
 					}
 				}
@@ -121,11 +121,11 @@ const Manager = {
 				for (let a of e.assign) {
 					if (a.type == 'timer') {
 						// Для таймеров
-						if (!ta.state.timers[a.n]) throw `Unexpected timer: ${а}`;
+						if (ta.state.timers[a.n] === null) throw `Unexpected timer: ${a.n}`;
 						ta.state.timers[a.n] = a.v;
 					} else {
 						// Для переменных
-						if (!ta.state.variables[a.n]) throw `Unexpected variable: ${а}`;
+						if (ta.state.variables[a.n] === null) throw `Unexpected variable: ${a.n}`;
 						ta.state.variables[a.n] = a.V;
 					}
 				}
@@ -161,7 +161,6 @@ const Manager = {
 			e: (ta, l, r) => taStateObject(l, ta) === taStateObject(r, ta),
 			ne: (ta, l, r) => taStateObject(l, ta) !== taStateObject(r, ta),
 		};
-
 		if (op[g.s]) return op[g.s](ta, g.l, g.r);
 		else throw `Unexpected guard: ${JSON.stringify(g)}`;
 	},

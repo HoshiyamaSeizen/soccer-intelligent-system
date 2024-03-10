@@ -53,7 +53,7 @@ class Agent {
 
 		if (!data) throw new Error('Parse error\n' + msg);
 		// Первое (hear) — начало игры
-		if (data.cmd == 'hear' /*&& data.p[2] == 'play_on'*/) this.run = true;
+		if (data.cmd == 'hear' && data.p[2] == 'play_on') this.run = true;
 		if (data.cmd == 'init') this.initAgent(data.p); // Инициализация
 		if (data.cmd == 'hear' && data.p[2] == '"go"') this.didHearGo = true;
 		if (data.cmd == 'hear' && data.p[2].includes('goal')) goal = true;

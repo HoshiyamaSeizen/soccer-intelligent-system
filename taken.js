@@ -58,7 +58,7 @@ const Taken = {
 		this.pos = null;
 		this.teammates = [];
 		this.opponents = [];
-		this.ball = [];
+		this.ball = null;
 		this.bodyAngle = null;
 		this.goalOwn = null;
 		this.goal = null;
@@ -134,7 +134,7 @@ const Taken = {
 		}
 	},
 	getLocation() {
-		if (this.uniqueXFlags.length < 3) {
+		if (this.uniqueXFlags.length >= 3) {
 			const [x1, y1, d1, alpha1] = this.extractFlagCoordsAndDistance(this.uniqueXFlags[0]);
 			const [x2, y2, d2, alpha2] = this.extractFlagCoordsAndDistance(this.uniqueXFlags[1]);
 			const [x3, y3, d3, alpha3] = this.extractFlagCoordsAndDistance(this.uniqueXFlags[2]);
@@ -189,6 +189,7 @@ const Taken = {
 		return this.observedFlags.find((fl) => fl.name === flagName).angle;
 	},
 	getKickAngle(goal) {
+		if (!this.pos) return 180;
 		let goalCoords = Flags[goal];
 		let angleToGoal = calculateAngle(this.pos.x, this.pos.y, +goalCoords.x, +goalCoords.y);
 		let tmp = calculateRotationAngle(angleToGoal, this.bodyAngle);
