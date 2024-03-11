@@ -43,7 +43,7 @@ const TA = {
 				close_catch: [{ synch: 'catch!' }],
 				/* Событие синхронизации synch вызывает на выполнение соответствующую функцию */
 				catch_kick: [{ synch: 'kick!' }],
-				kick_look: [{ guard: [{ s: 'lt', l: { v: 'dist' }, r: 2 }] }],
+				kick_look: [{ guard: [{ s: 'lt', l: { v: 'dist' }, r: 0 }] }], //! delete
 				kick_start: [{ assign: [{ n: 't', v: 0, type: 'timer' }] }],
 				/* Список assign перечисляет присваивания для переменных "variable" и таймеров "timer" */
 				far_look: [{ assign: [{ n: 't', v: 0, type: 'timer' }] }],
@@ -106,6 +106,7 @@ const TA = {
 				goBack(taken, state) {
 					// Возврат к воротам
 					state.next = false;
+					console.log('goBack');
 					let goalOwn = taken.goalOwn;
 					if (!goalOwn) return { n: 'turn', v: 90 };
 					if (Math.abs(goalOwn.angle) > 10) return { n: 'turn', v: goalOwn.angle };
