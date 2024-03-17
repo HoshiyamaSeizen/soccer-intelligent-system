@@ -1,37 +1,20 @@
 const Msg = require('./msg');
-const readline = require('readline');
 const getControllers = require('./controllers');
 
 class Agent {
-	constructor(team, coords, strat = 'player', flag = null) {
+	constructor(team, coords, strat = 'player', flag = null, isLeader = false) {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // Игра начата
 		this.act = null; // Действия
 		this.bodyAngle = 0;
-		this.rl = readline.createInterface({
-			// Чтение консоли
-			input: process.stdin,
-			output: process.stdout,
-		});
 		this.x = coords[0];
 		this.y = coords[1];
 		this.leadershipDefined = false;
-		this.isLeader = false;
+		this.isLeader = isLeader;
 		this.flag = flag;
 		this.team = team;
-		this.didHearGo = false;
 		this.strat = strat;
 		this.defaultPos = coords;
-		this.rl.on('line', (input) => {
-			if (this.run) {
-				// Если игра начата
-				// Движения вперед, вправо, влево, удар по мячу
-				if ('w' == input) this.act = { n: 'dash', v: 100 };
-				if ('d' == input) this.act = { n: 'turn', v: 20 };
-				if ('a' == input) this.act = { n: 'turn', v: -20 };
-				if ('s' == input) this.act = { n: 'kick', v: '100 0' };
-			}
-		});
 	}
 	msgGot(msg) {
 		// Получение сообщения
@@ -67,7 +50,7 @@ class Agent {
 	}
 	setControllers() {
 		this.controllers = getControllers(this.strat);
-		this.controllers[0].setTaken(this.team, this.position);
+		this.controllers[0].setTaken(this.team, this.position, this.isLeader);
 		if (this.strat === 'bouncer') this.controllers[1].setFlag(this.flag, 10);
 	}
 	async analyzeEnv(msg, cmd, p, goal) {

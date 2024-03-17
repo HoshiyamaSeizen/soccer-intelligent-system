@@ -25,9 +25,10 @@ const Taken = {
 		uniqueXFlags: [],
 		observedFlags: [],
 	},
-	init(team, side) {
+	init(team, side, isLeader) {
 		this.teamName = team;
 		this.side = side;
+		this.isLeader = isLeader;
 
 		const gr = { x: Flags.gr.x, y: Flags.gr.y, f: 'gr', dist: null, angle: null };
 		const gl = { x: Flags.gl.x, y: Flags.gl.y, f: 'gl', dist: null, angle: null };

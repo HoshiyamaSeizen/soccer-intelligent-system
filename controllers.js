@@ -1,11 +1,13 @@
 const Taken = require('./taken');
 
+const leaderPos = { a: null, b: null };
+
 const CTRL_LOW = {
 	init() {
 		return this;
 	},
-	setTaken(team, side) {
-		this.taken = Object.create(Taken).init(team, side);
+	setTaken(team, side, isLeader) {
+		this.taken = Object.create(Taken).init(team, side, isLeader);
 	},
 	setHear(input) {
 		this.taken.setHear(input);
@@ -15,6 +17,8 @@ const CTRL_LOW = {
 		this.taken.setSee(input); // Выделение объектов
 		this.taken.canKick = this.taken.ball && this.taken.ball.dist < 0.5;
 		this.taken.canCatch = this.taken.ball && this.taken.ball.dist < 2;
+		if (this.taken.isLeader && this.taken.pos)
+			leaderPos[this.taken.side === 'l' ? 'a' : 'b'] = this.taken.pos;
 		return next ? next.execute(this.taken, controllers.slice(1)) : null;
 	},
 };
