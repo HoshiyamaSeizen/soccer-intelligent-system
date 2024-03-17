@@ -1,6 +1,8 @@
 const Taken = require('./taken');
 
 const leaderPos = { a: null, b: null };
+const LSPEED = 60;
+const FSPEED = 100;
 
 const CTRL_LOW = {
 	init() {
@@ -122,7 +124,7 @@ const CTRL_MIDDLE_PLAYER = {
 	execute(input, controllers) {
 		if (input.ball) {
 			if (Math.abs(input.ball.angle) > 10) return { n: 'turn', v: input.ball.angle };
-			if (input.ball.dist > 0.5) return { n: 'dash', v: 110 };
+			if (input.ball.dist > 0.5) return { n: 'dash', v: input.isLeader ? LSPEED : 110 };
 			if (input.goal) return { n: 'kick', v: `110 ${input.goal.angle}` };
 			return { n: 'kick', v: `100 ${input.getKickAngle(input.side === 'r' ? 'gl' : 'gr')}` };
 		} else return { n: 'turn', v: 90 };
@@ -183,6 +185,59 @@ const CTRL_HIGH_FLAG = {
 	},
 };
 
+const CTRL_MIDDLE_FOLLOW = {
+	init() {
+		return this;
+	},
+	setPos(followSide) {
+		this.followSide = followSide;
+	},
+	execute(input, controllers) {
+		const next = controllers[0];
+
+		const leader = leaderPos[input.side === 'l' ? 'a' : 'b'];
+		if (!leader) return;
+		else if (!input.pos) return { n: 'turn', v: 60 };
+
+		const dist = input.getDistancePos(leader);
+		const angle = input.getAnglePos(leader);
+		const absAngle = Math.abs(angle);
+		const sideCoef = this.followSide === 'l' ? -1 : 1;
+
+		if (dist < 20) {
+			let command = null;
+
+			if (dist <= 1 && absAngle < 40) {
+				command = { n: 'turn', v: 0 };
+			} else if (absAngle < 25 || absAngle > 35) {
+				command = { n: 'turn', v: `${angle + 30 * sideCoef}` };
+			} else if (dist < 7) {
+				if (dist < 3) command = { n: 'dash', v: 20 };
+				else command = { n: 'dash', v: 40 };
+			} else {
+				command = { n: 'dash', v: FSPEED };
+			}
+
+			return next.execute(input, controllers.slice(1)) || command;
+		} else {
+			if (Math.abs(angle) > 5) return { n: 'turn', v: angle };
+			return { n: 'dash', v: FSPEED };
+		}
+	},
+};
+
+const CTRL_HIGH_FOLLOW = {
+	init() {
+		return this;
+	},
+	execute(input, controllers) {
+		if (input.ball && input.ball.dist <= 0.5) {
+			if (input.goal) return { n: 'kick', v: `110 ${input.goal.angle}` };
+			return { n: 'kick', v: `100 ${input.getKickAngle(input.side === 'r' ? 'gl' : 'gr')}` };
+		}
+	},
+};
+
 const initController = (ctrl) => Object.create(ctrl).init();
 const initGroup = (...ctrls) => ctrls.map((ctrl) => initController(ctrl));
 
@@ -194,6 +249,8 @@ const getControllers = (strat) => {
 			return initGroup(CTRL_LOW, CTRL_MIDDLE_PLAYER);
 		case 'bouncer':
 			return initGroup(CTRL_LOW, CTRL_MIDDLE_FLAG, CTRL_HIGH_FLAG);
+		case 'follower':
+			return initGroup(CTRL_LOW, CTRL_MIDDLE_FOLLOW, CTRL_HIGH_FOLLOW);
 	}
 };
 

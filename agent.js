@@ -2,7 +2,7 @@ const Msg = require('./msg');
 const getControllers = require('./controllers');
 
 class Agent {
-	constructor(team, coords, strat = 'player', flag = null, isLeader = false) {
+	constructor(team, coords, strat = 'player', flag = null, isLeader = false, followSide = null) {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // Игра начата
 		this.act = null; // Действия
@@ -15,6 +15,7 @@ class Agent {
 		this.team = team;
 		this.strat = strat;
 		this.defaultPos = coords;
+		this.followSide = followSide;
 	}
 	msgGot(msg) {
 		// Получение сообщения
@@ -52,6 +53,7 @@ class Agent {
 		this.controllers = getControllers(this.strat);
 		this.controllers[0].setTaken(this.team, this.position, this.isLeader);
 		if (this.strat === 'bouncer') this.controllers[1].setFlag(this.flag, 10);
+		if (this.strat === 'follower') this.controllers[1].setPos(this.followSide);
 	}
 	async analyzeEnv(msg, cmd, p, goal) {
 		if (!this.run) return;
