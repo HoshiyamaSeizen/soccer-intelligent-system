@@ -22,6 +22,7 @@ const CTRL_LOW = {
 const CTRL_MIDDLE_GOALIE = {
 	init() {
 		this.action = 'return';
+		this.wait = 10;
 		return this;
 	},
 	execute(input, controllers) {
@@ -38,9 +39,15 @@ const CTRL_MIDDLE_GOALIE = {
 				break;
 		}
 		input.action = this.action;
-		const command = next?.execute(input, controllers.slice(1)) || input.cmd;
+		const command = next.execute(input, controllers.slice(1)) || input.cmd;
 		if (input.newAction) this.action = input.newAction;
 		input.newAction = null;
+		if (!command) {
+			if (this.wait === 0) {
+				this.action = 'return';
+				this.wait = 10;
+			} else this.wait = Math.max(0, this.wait - 1);
+		}
 		return command;
 	},
 	actionReturn(input) {
@@ -59,7 +66,7 @@ const CTRL_MIDDLE_GOALIE = {
 	},
 	seekBall(input) {
 		// Осмотр поля
-		if (input.ball) return { n: 'turn', v: 0 };
+		if (input.ball) return null;
 		else return { n: 'turn', v: 90 };
 	},
 };
@@ -118,6 +125,60 @@ const CTRL_MIDDLE_PLAYER = {
 	},
 };
 
+const CTRL_MIDDLE_FLAG = {
+	init() {
+		this.action = 'flag';
+		this.onPosition = false;
+		return this;
+	},
+	setFlag(fl, r) {
+		this.flag = fl;
+		this.r = r;
+		this.wait = this.flag === 'fc' ? 20 : 0;
+	},
+	execute(input, controllers) {
+		const next = controllers[0];
+
+		if (this.onPosition) {
+			input.r = this.r;
+			const cmd = next.execute(input, controllers.slice(1));
+			if (cmd) {
+				if (cmd.n === 'kick') this.onPosition = false;
+				return cmd;
+			} else {
+				if (this.wait === 0) {
+					this.onPosition = false;
+					this.wait = this.flag === 'fc' ? 20 : 0;
+				} else this.wait = Math.max(0, this.wait - 1);
+			}
+		} else {
+			if (!input.getVisible(this.flag)) return { n: 'turn', v: 90 };
+			if (Math.abs(input.getAngle(this.flag)) > 10)
+				return { n: 'turn', v: input.getAngle(this.flag) };
+			if (input.getDistance(this.flag) > (this.flag === 'fc' ? 20 : 3))
+				return { n: 'dash', v: 100 };
+			if (this.wait === 0) {
+				this.onPosition = true;
+				this.wait = 20;
+			} else this.wait = Math.max(0, this.wait - 1);
+		}
+	},
+};
+
+const CTRL_HIGH_FLAG = {
+	init() {
+		return this;
+	},
+	execute(input, controllers) {
+		if (input.ball && input.ball.dist <= input.r) {
+			if (Math.abs(input.ball.angle) > 10) return { n: 'turn', v: input.ball.angle };
+			if (input.ball.dist > 0.5) return { n: 'dash', v: 110 };
+			if (input.goal) return { n: 'kick', v: `110 ${input.goal.angle}` };
+			return { n: 'kick', v: `100 ${input.getKickAngle(input.side === 'r' ? 'gl' : 'gr')}` };
+		} else if (!input.ball) return { n: 'turn', v: 90 };
+	},
+};
+
 const initController = (ctrl) => Object.create(ctrl).init();
 const initGroup = (...ctrls) => ctrls.map((ctrl) => initController(ctrl));
 
@@ -127,6 +188,8 @@ const getControllers = (strat) => {
 			return initGroup(CTRL_LOW, CTRL_MIDDLE_GOALIE, CTRL_HIGH_GOALIE);
 		case 'player':
 			return initGroup(CTRL_LOW, CTRL_MIDDLE_PLAYER);
+		case 'bouncer':
+			return initGroup(CTRL_LOW, CTRL_MIDDLE_FLAG, CTRL_HIGH_FLAG);
 	}
 };
 

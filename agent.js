@@ -3,7 +3,7 @@ const readline = require('readline');
 const getControllers = require('./controllers');
 
 class Agent {
-	constructor(team, coords, strat = 'player') {
+	constructor(team, coords, strat = 'player', flag = null) {
 		this.position = 'l'; // По умолчанию ~ левая половина поля
 		this.run = false; // Игра начата
 		this.act = null; // Действия
@@ -17,6 +17,7 @@ class Agent {
 		this.y = coords[1];
 		this.leadershipDefined = false;
 		this.isLeader = false;
+		this.flag = flag;
 		this.team = team;
 		this.didHearGo = false;
 		this.strat = strat;
@@ -62,8 +63,12 @@ class Agent {
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
+		this.setControllers();
+	}
+	setControllers() {
 		this.controllers = getControllers(this.strat);
 		this.controllers[0].setTaken(this.team, this.position);
+		if (this.strat === 'bouncer') this.controllers[1].setFlag(this.flag, 10);
 	}
 	async analyzeEnv(msg, cmd, p, goal) {
 		if (!this.run) return;
@@ -75,6 +80,7 @@ class Agent {
 					? `${this.defaultPos[0]} ${this.defaultPos[1]}`
 					: `${-this.defaultPos[0]} ${-this.defaultPos[1]}`
 			);
+			this.setControllers();
 		}
 
 		if (cmd === 'hear') this.controllers[0].setHear(p);
