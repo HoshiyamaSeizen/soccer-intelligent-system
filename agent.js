@@ -1,7 +1,6 @@
 const Msg = require('./msg');
 const readline = require('readline');
-const Manager = require('./tmanager');
-const TA = require('./tmachine');
+const getControllers = require('./controllers');
 
 class Agent {
 	constructor(team, coords, strat = 'player') {
@@ -21,6 +20,7 @@ class Agent {
 		this.team = team;
 		this.didHearGo = false;
 		this.strat = strat;
+		this.defaultPos = coords;
 		this.rl.on('line', (input) => {
 			if (this.run) {
 				// Если игра начата
@@ -62,22 +62,23 @@ class Agent {
 	initAgent(p) {
 		if (p[0] == 'r') this.position = 'r'; // Правая половина поля
 		if (p[1]) this.id = p[1]; // id игрока
-		this.mgr = Object.create(Manager).init(this.team, this.position);
-		this.ta = Object.create(TA[this.strat]).init();
+		this.controllers = getControllers(this.strat);
+		this.controllers[0].setTaken(this.team, this.position);
 	}
 	async analyzeEnv(msg, cmd, p, goal) {
 		if (!this.run) return;
 		if (goal) {
 			this.run = false;
-			if (this.strat == 'player') await this.socketSend('move', '-20 0');
-			if (this.strat == 'goalie') await this.socketSend('move', '-30 0');
+			await this.socketSend(
+				'move',
+				this.position === 'l'
+					? `${this.defaultPos[0]} ${this.defaultPos[1]}`
+					: `${-this.defaultPos[0]} ${-this.defaultPos[1]}`
+			);
 		}
 
-		if (cmd === 'hear') this.mgr.setHear(p);
-		if (cmd === 'see') {
-			this.act = this.mgr.getAction(p, this.ta);
-			// if (this.position === 'r') console.log(this.act);
-		}
+		if (cmd === 'hear') this.controllers[0].setHear(p);
+		if (cmd === 'see') this.act = this.controllers[0].execute(p, this.controllers.slice(1));
 	}
 	sendCmd() {
 		if (this.run) {

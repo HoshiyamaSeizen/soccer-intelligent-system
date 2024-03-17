@@ -5,13 +5,24 @@ const VERSION = 7;
 let teamNameA = 'teamA';
 let teamNameB = 'teamB';
 
+const players = [
+	{ team: 0, pos: [-40, 0], strat: 'goalie' },
+	{ team: 0, pos: [-10, 0], strat: 'player' },
+	{ team: 1, pos: [40, 0], strat: 'goalie' },
+	{ team: 1, pos: [10, 0], strat: 'player' },
+];
+
 (async () => {
-	let pA1 = new Agent(teamNameA, [-20, 20], 'player');
-	let pB1 = new Agent(teamNameB, [30, 0], 'goalie');
-
-	await Socket(pA1, pA1.team, VERSION);
-	await Socket(pB1, pB1.team, VERSION);
-
-	await pA1.socketSend('move', `-20 20`);
-	await pB1.socketSend('move', '-30 0');
+	const agents = players.map((p) => new Agent(p.team ? teamNameB : teamNameA, p.pos, p.strat));
+	const sockets = agents.map((a) => Socket(a, a.team, VERSION));
+	await Promise.all(sockets);
+	const moves = agents.map((a) =>
+		a.socketSend(
+			'move',
+			a.team === teamNameA
+				? `${a.defaultPos[0]} ${a.defaultPos[1]}`
+				: `${-a.defaultPos[0]} ${-a.defaultPos[1]}`
+		)
+	);
+	await Promise.all(moves);
 })();

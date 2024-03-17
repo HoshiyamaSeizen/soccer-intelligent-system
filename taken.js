@@ -173,20 +173,20 @@ const Taken = {
 		} else return null;
 	},
 	getVisible(flagName) {
-		return 0 <= this.observedFlags.findIndex((fl) => fl.name === flagName);
+		return 0 <= this.observedFlags.findIndex((fl) => fl.f === flagName);
 	},
 	getDistance(flagName) {
-		return this.observedFlags.find((fl) => fl.name === flagName).dist;
+		return this.observedFlags.find((fl) => fl.f === flagName).dist;
 	},
 	getDistanceAppr(flagName) {
-		const fl = this.observedFlags.find((fl) => fl.name === flagName);
+		const fl = this.observedFlags.find((fl) => fl.f === flagName);
 		if (fl) return fl.dist;
 
 		const flag = Flags[flagName];
 		return Math.sqrt((this.pos.x - flag.x) ** 2 + (this.pos.y - flag.y) ** 2) || 100;
 	},
 	getAngle(flagName) {
-		return this.observedFlags.find((fl) => fl.name === flagName).angle;
+		return this.observedFlags.find((fl) => fl.f === flagName).angle;
 	},
 	getKickAngle(goal) {
 		if (!this.pos) return 180;
@@ -196,6 +196,7 @@ const Taken = {
 		return tmp;
 	},
 	inPenaltyZone(side = 'r') {
+		if (!this.pos) return true;
 		const { x, y } = this.pos;
 		const { fprt, fprb, fplt, fplb } = Flags;
 
