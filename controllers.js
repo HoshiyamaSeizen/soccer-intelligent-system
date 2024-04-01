@@ -125,8 +125,16 @@ const CTRL_MIDDLE_PLAYER = {
 		if (input.ball) {
 			if (Math.abs(input.ball.angle) > 10) return { n: 'turn', v: input.ball.angle };
 			if (input.ball.dist > 0.5) return { n: 'dash', v: input.isLeader ? LSPEED : 110 };
-			if (input.goal) return { n: 'kick', v: `110 ${input.goal.angle}` };
-			return { n: 'kick', v: `100 ${input.getKickAngle(input.side === 'r' ? 'gl' : 'gr')}` };
+
+			const oppFlag = input.side === 'r' ? 'gl' : 'gr';
+			const kickPower = input.pos && input.getDistanceFlag(oppFlag) > 30 ? 70 : 110;
+			const kickAngle = input.pos ? input.getKickAngle(oppFlag) : 0;
+
+			if (input.goal) return { n: 'kick', v: `${kickPower} ${input.goal.angle}` };
+			return {
+				n: 'kick',
+				v: `${kickPower} ${kickAngle}`,
+			};
 		} else return { n: 'turn', v: 90 };
 	},
 };

@@ -3,7 +3,7 @@ const Agent = require('./agent');
 const Socket = require('./socket');
 const VERSION = 7;
 
-let teamNameA = 'teamA';
+let teamNameA = 'initVector';
 let teamNameB = 'teamB';
 
 setMaxListeners(22);
@@ -20,17 +20,17 @@ const players = [
 	{ team: 0, pos: [-10, 10], strat: 'bouncer', flag: 'fprc' },
 	{ team: 0, pos: [-10, 20], strat: 'bouncer', flag: 'fprb' },
 	{ team: 0, pos: [-10, 0], strat: 'bouncer', flag: 'fc' },
-	{ team: 1, pos: [40, 0], strat: 'goalie' },
-	{ team: 1, pos: [10, 0], strat: 'player', isLeader: true },
-	{ team: 1, pos: [20, -10], strat: 'follower', followSide: 'r' },
-	{ team: 1, pos: [20, 10], strat: 'follower', followSide: 'l' },
-	{ team: 1, pos: [36, -20], strat: 'bouncer', flag: 'fprt' },
-	{ team: 1, pos: [36, 0], strat: 'bouncer', flag: 'fprc' },
-	{ team: 1, pos: [36, 20], strat: 'bouncer', flag: 'fprb' },
-	{ team: 1, pos: [10, -20], strat: 'bouncer', flag: 'fplt' },
-	{ team: 1, pos: [10, 0], strat: 'bouncer', flag: 'fplc' },
-	{ team: 1, pos: [10, 20], strat: 'bouncer', flag: 'fplb' },
-	{ team: 1, pos: [10, -10], strat: 'bouncer', flag: 'fc' },
+	// { team: 1, pos: [40, 0], strat: 'goalie' },
+	// { team: 1, pos: [10, 0], strat: 'player', isLeader: true },
+	// { team: 1, pos: [20, -10], strat: 'follower', followSide: 'r' },
+	// { team: 1, pos: [20, 10], strat: 'follower', followSide: 'l' },
+	// { team: 1, pos: [36, -20], strat: 'bouncer', flag: 'fprt' },
+	// { team: 1, pos: [36, 0], strat: 'bouncer', flag: 'fprc' },
+	// { team: 1, pos: [36, 20], strat: 'bouncer', flag: 'fprb' },
+	// { team: 1, pos: [10, -20], strat: 'bouncer', flag: 'fplt' },
+	// { team: 1, pos: [10, 0], strat: 'bouncer', flag: 'fplc' },
+	// { team: 1, pos: [10, 20], strat: 'bouncer', flag: 'fplb' },
+	// { team: 1, pos: [10, -10], strat: 'bouncer', flag: 'fc' },
 ];
 
 (async () => {
